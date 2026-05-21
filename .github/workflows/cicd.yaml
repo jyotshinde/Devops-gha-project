@@ -1,8 +1,8 @@
 name: CI/CD Pipeline
-on: workflow_dispatch
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 #   pull_request:
 #     branches:
 #       - main
@@ -10,48 +10,60 @@ jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
-        - name: cache maven dependencies
-          uses: actions/cache@v3
-          with:
-            path: ~/.m2
-            key: ${{ runner.os }}-maven-${{ hashFiles('./boardgame/my-app/pom.xml') }} 
-        - name: setup jdk
-          uses: actions/setup-java@v3
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-            cache: maven
-        - name: install maven
-          run: sudo apt-get install maven -y
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: cache maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('boardgame/my-app/pom.xml') }}
+
+      - name: setup jdk
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: install maven
+        run: sudo apt-get install maven -y
+
   build:
     runs-on: ubuntu-latest
     needs: install
     steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
-        - name: build with maven
-          run: mvn clean install
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: build with maven
+        working-directory: boardgame/my-app
+        run: mvn clean install
+
   test:
     runs-on: ubuntu-latest
     needs: build
     steps:
-        - name: Checkout code
-          uses: actions/checkout@v3 
-        - name: run tests
-          run: mvn test
+      - name: Checkout code
+        uses: actions/checkout@v3 
+
+      - name: run tests
+        working-directory: boardgame/my-app
+        run: mvn test
+
   package-and-upload:
     runs-on: ubuntu-latest
     needs: test
     steps:
-        - name: package application
-          run: mvn package
-        - name: upload artifact
-          uses: actions/upload-artifact@v3
-          with:
-            name: my-app-artifact
-            path: target/*.jar
+      - name: package application
+        working-directory: boardgame/my-app
+        run: mvn package
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-app-artifact
+          path: boardgame/my-app/target/*.jar
   scan:
     runs-on: ubuntu-latest
     needs: test
