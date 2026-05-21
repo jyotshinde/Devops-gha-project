@@ -1,8 +1,8 @@
 name: Full CI/CD Pipeline
-on: workflow_dispatch
-  # push:
-  #   branches:
-  #     - main
+on:
+  push:
+    branches:
+      - main
 
 jobs:
 
@@ -96,6 +96,12 @@ jobs:
             -Dsonar.projectKey=jyotshinde_Devops-gha-project
             -Dsonar.organization=jyotshinde
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          run: |
+            mvn clean verify sonar:sonar \
+             -Dsonar.projectKey=jyotshinde_Devops-gha-project \
+             -Dsonar.organization=jyotshinde \
+             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install jq -y
       - name: Get Quality Gate Status
