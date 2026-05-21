@@ -168,9 +168,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup kubeconfig
-        uses: tale/kubeconfig-action@v1
+        uses: azure/k8s-set-context@v4
         with:
-          base64-kubeconfig: ${{ secrets.KUBECONFIG_BASE64 }}
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG_BASE64 }}
       - name: Deploy to Kubernetes
         run: kubectl apply -f boardgame/deployment-service.yaml
 
