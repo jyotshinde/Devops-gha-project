@@ -22,6 +22,7 @@ jobs:
           with:
             java-version: '17'
             distribution: 'temurin'
+            cache: maven
         - name: install maven
           run: sudo apt-get install maven -y
   build:
@@ -57,18 +58,18 @@ jobs:
     steps:
         - name: trivy fs scan
           run: | 
-            trivy fs --format table -o trivy-logs.html
+            trivy fs . --format table -o trivy-logs.html
   sonarqube:
     runs-on: ubuntu-latest
     needs: test
     environment: main
     steps:
         - name: SonarQube Scan
-          uses: sonarsource/sonarcloud-github-action@master
+          uses: sonarsource/sonarcloud-github-action@v2
           with:
             args: >
               -Dsonar.projectKey=github-actions
-              -Dsonar.host.url= ${{ secrets.SONAR_HOST_URL }}
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
               -Dsonar.login=${{ secrets.SONAR_TOKEN }}   
         - name: install jq
           run: sudo apt-get install jq -y
@@ -80,7 +81,7 @@ jobs:
             status=$(echo "$response" | jq -r '.projectStatus.status')
             echo "quality_gate_status=$status" >> $GITHUB_OUTPUT
         - name: check quality gate status
-          if: steps.quality_gate.outputs.quality_gate_status != 'OK'
+          if: ${{ steps.quality_gate.outputs.quality_gate_status != 'OK' }}
           run: exit 1
               
   qemu-setup:
@@ -124,7 +125,17 @@ jobs:
             password: ${{ secrets.DOCKER_PASSWORD }}
         - name: push docker image
           run: docker push thejyot/my-app:latest
-  
-          
+  kubernetes:
+    runs-on: ubuntu-latest
+    needs: login-and-push
+    environment: main
+    steps:
+        - name: setup kubeconfig
+          uses: tale/kubeconfig-action@v1
+          with:
+            base64-kubeconfig: ${{ secrets.KUBECONFIG_BASE64 }}
+        - name: deploy to kubernetes cluster
+          run: |
+            kubectl apply -f boardgame/deployment-service.yaml
     
 
