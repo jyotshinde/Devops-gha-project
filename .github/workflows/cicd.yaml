@@ -85,14 +85,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: SonarQube Scan
+      - name: SonarQube Cloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
+          projectBaseDir: boardgame
           args: >
-            -Dsonar.projectKey=github-actions
+            -Dsonar.projectKey=jyotshinde_Devops-gha-project
+            -Dsonar.organization=jyotshinde
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install jq -y
