@@ -172,6 +172,7 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG_BASE64 }}
+          kubeconfig-encoding: base64
       - name: Deploy to Kubernetes
         run: kubectl apply -f boardgame/deployment-service.yaml
 
