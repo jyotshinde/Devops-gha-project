@@ -1,8 +1,8 @@
 name: Full CI/CD Pipeline
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
+  # push:
+  #   branches:
+  #     - main
 
 jobs:
 
@@ -139,7 +139,8 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./boardgame
+          file: ./boardgame/Dockerfile
           push: true
           tags: thejyot/my-app:latest
   docker-image-scan:
