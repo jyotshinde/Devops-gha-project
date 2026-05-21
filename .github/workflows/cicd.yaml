@@ -161,19 +161,12 @@ jobs:
         run: trivy image thejyot/my-app:latest
 
   kubernetes:
-    runs-on: ubuntu-latest
     needs: docker-image-scan
-    environment: main
+    runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Setup kubeconfig
-        uses: azure/k8s-set-context@v4
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG_BASE64 }}
-          kubeconfig-encoding: base64
-      - name: Deploy to Kubernetes
+      - uses: actions/checkout@v4
+      - name: Deploy
         run: kubectl apply -f boardgame/deployment-service.yaml
+        
 
 
