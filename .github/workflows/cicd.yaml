@@ -82,6 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     environment: main
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
